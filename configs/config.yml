@@ -1,0 +1,27 @@
+server:
+  name: go-echo-sql-sample
+  port: 8080
+
+mongo:
+  uri: mongodb+srv://dbUser:Demoaccount1@projectdemo.g0lah.mongodb.net
+  database: masterdata
+
+log:
+  level: info
+  map:
+    time: "@timestamp"
+    msg: message
+    caller: caller
+    function: func
+
+middleware:
+  log: true
+  skips: /health
+  request: request
+  response: response
+  duration: duration
+  size: size
+
+response:
+  id: X-Response-Id
+  correlation: X-Correlation-Id
