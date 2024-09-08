@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/core-go/core"
+	s "github.com/core-go/search"
 	"github.com/labstack/echo/v4"
 
 	"go-service/internal/user/model"
@@ -14,16 +15,19 @@ import (
 )
 
 type UserHandler struct {
-	service  service.UserService
-	Validate func(context.Context, interface{}) ([]core.ErrorMessage, error)
-	Error    func(context.Context, string, ...map[string]interface{})
-	Map      map[string]int
+	service     service.UserService
+	Validate    func(context.Context, interface{}) ([]core.ErrorMessage, error)
+	Error       func(context.Context, string, ...map[string]interface{})
+	Map         map[string]int
+	ParamIndex  map[string]int
+	FilterIndex int
 }
 
 func NewUserHandler(service service.UserService, logError func(context.Context, string, ...map[string]interface{}), validate func(context.Context, interface{}) ([]core.ErrorMessage, error)) *UserHandler {
 	userType := reflect.TypeOf(model.User{})
 	_, jsonMap, _ := core.BuildMapField(userType)
-	return &UserHandler{service: service, Validate: validate, Error: logError, Map: jsonMap}
+	paramIndex, filterIndex := s.BuildParams(reflect.TypeOf(model.UserFilter{}))
+	return &UserHandler{service: service, Validate: validate, Map: jsonMap, Error: logError, ParamIndex: paramIndex, FilterIndex: filterIndex}
 }
 
 func (h *UserHandler) All(c echo.Context) error {
@@ -186,4 +190,20 @@ func (h *UserHandler) Delete(c echo.Context) error {
 	} else {
 		return c.JSON(http.StatusNotFound, res)
 	}
+}
+
+func (h *UserHandler) Search(c echo.Context) error {
+	filter := model.UserFilter{Filter: &s.Filter{}}
+	err := s.Decode(c.Request(), &filter, h.ParamIndex, h.FilterIndex)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	offset := s.GetOffset(filter.Limit, filter.Page)
+	users, total, err := h.service.Search(c.Request().Context(), &filter, filter.Limit, offset)
+	if err != nil {
+		h.Error(c.Request().Context(), fmt.Sprintf("Error to search user %v: %s", filter, err.Error()))
+		return c.String(http.StatusInternalServerError, core.InternalServerError)
+	}
+	return c.JSON(http.StatusOK, &s.Result{List: &users, Total: total})
 }

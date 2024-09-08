@@ -8,6 +8,7 @@ require (
 	github.com/core-go/health v1.2.0
 	github.com/core-go/log v1.0.9
 	github.com/core-go/mongo v1.0.0
+	github.com/core-go/search v1.0.7
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lib/pq v1.10.9
 	go.mongodb.org/mongo-driver v1.16.1
