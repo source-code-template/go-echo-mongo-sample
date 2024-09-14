@@ -4,11 +4,11 @@ go 1.17
 
 require (
 	github.com/core-go/config v1.0.2
-	github.com/core-go/core v1.0.1
-	github.com/core-go/health v1.2.0
+	github.com/core-go/core v1.0.3
+	github.com/core-go/health v1.2.1
 	github.com/core-go/log v1.0.9
 	github.com/core-go/mongo v1.0.0
-	github.com/core-go/search v1.0.7
+	github.com/core-go/search v1.1.2
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lib/pq v1.10.9
 	go.mongodb.org/mongo-driver v1.16.1
@@ -19,7 +19,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.22.0 // indirect
+	github.com/go-playground/validator/v10 v10.22.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -49,7 +49,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect

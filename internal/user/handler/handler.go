@@ -26,7 +26,7 @@ type UserHandler struct {
 func NewUserHandler(service service.UserService, logError func(context.Context, string, ...map[string]interface{}), validate func(context.Context, interface{}) ([]core.ErrorMessage, error)) *UserHandler {
 	userType := reflect.TypeOf(model.User{})
 	_, jsonMap, _ := core.BuildMapField(userType)
-	paramIndex, filterIndex := s.BuildParams(reflect.TypeOf(model.UserFilter{}))
+	paramIndex, filterIndex := s.BuildAttributes(reflect.TypeOf(model.UserFilter{}))
 	return &UserHandler{service: service, Validate: validate, Map: jsonMap, Error: logError, ParamIndex: paramIndex, FilterIndex: filterIndex}
 }
 
