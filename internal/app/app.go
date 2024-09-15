@@ -14,8 +14,8 @@ import (
 )
 
 type ApplicationContext struct {
-	Health  *echo.Handler
-	Handler user.UserTransport
+	Health *echo.Handler
+	User   user.UserTransport
 }
 
 func NewApp(ctx context.Context, cfg Config) (*ApplicationContext, error) {
@@ -35,7 +35,7 @@ func NewApp(ctx context.Context, cfg Config) (*ApplicationContext, error) {
 	healthHandler := echo.NewHandler(mongoChecker)
 
 	return &ApplicationContext{
-		Health:  healthHandler,
-		Handler: userHandler,
+		Health: healthHandler,
+		User:   userHandler,
 	}, nil
 }

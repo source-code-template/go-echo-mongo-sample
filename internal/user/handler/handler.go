@@ -82,7 +82,6 @@ func (h *UserHandler) Create(c echo.Context) error {
 	} else {
 		return c.JSON(http.StatusConflict, res)
 	}
-
 }
 
 func (h *UserHandler) Update(c echo.Context) error {

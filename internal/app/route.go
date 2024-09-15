@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Route(ctx context.Context, e *echo.Echo, config Config) error {
-	app, err := NewApp(ctx, config)
+func Route(ctx context.Context, e *echo.Echo, cfg Config) error {
+	app, err := NewApp(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -15,12 +15,12 @@ func Route(ctx context.Context, e *echo.Echo, config Config) error {
 	e.GET("/health", app.Health.Check)
 
 	userPath := "/users"
-	e.GET(userPath, app.Handler.All)
-	e.GET(userPath+"/:id", app.Handler.Load)
-	e.POST(userPath, app.Handler.Create)
-	e.PUT(userPath+"/:id", app.Handler.Update)
-	e.PATCH(userPath+"/:id", app.Handler.Patch)
-	e.DELETE(userPath+"/:id", app.Handler.Delete)
+	e.GET(userPath, app.User.All)
+	e.GET(userPath+"/:id", app.User.Load)
+	e.POST(userPath, app.User.Create)
+	e.PUT(userPath+"/:id", app.User.Update)
+	e.PATCH(userPath+"/:id", app.User.Patch)
+	e.DELETE(userPath+"/:id", app.User.Delete)
 
 	return nil
 }
