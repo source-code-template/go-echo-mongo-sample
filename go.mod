@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/core-go/config v1.0.2
-	github.com/core-go/core v1.0.3
+	github.com/core-go/core v1.0.4
 	github.com/core-go/health v1.2.1
 	github.com/core-go/log v1.0.9
 	github.com/core-go/mongo v1.0.0

@@ -1,7 +1,7 @@
 github.com/core-go/config v1.0.2 h1:geE/bJRTmX2LsRv2z01qZpbFQKUZFT607kdcWPrzUTg=
 github.com/core-go/config v1.0.2/go.mod h1:fHfbCGBNq6FMQneRMtDg8tkTwut3KmmYxcjgbW37+As=
-github.com/core-go/core v1.0.3 h1:wqI1a8b/pS14YkXvLD3HnRJ92XVlChju6fhh8N/oq4Y=
-github.com/core-go/core v1.0.3/go.mod h1:bfN1xcZGpu0cnA6qhv/JyTkFHnk9IJgqd/JnevDxGkA=
+github.com/core-go/core v1.0.4 h1:7ozAQz+1ui9UY/tdhhxIuIjlYYDgp4k9xRhPrYFY6sc=
+github.com/core-go/core v1.0.4/go.mod h1:bfN1xcZGpu0cnA6qhv/JyTkFHnk9IJgqd/JnevDxGkA=
 github.com/core-go/health v1.2.1 h1:tbq175/VmO3BQhAMBLCmU2vPaiGBjUMxD4ypxSwMFkQ=
 github.com/core-go/health v1.2.1/go.mod h1:7J9YQqCPSZW5+5BLVtZPQ/FULyk+LHZgSTnWFdL+oP0=
 github.com/core-go/log v1.0.9 h1:QGhJB8WOGBvcIt1YrSPqbupusCnYHhd4IMNsthyBY0Y=
