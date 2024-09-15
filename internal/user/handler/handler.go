@@ -155,7 +155,6 @@ func (h *UserHandler) Patch(c echo.Context) error {
 		h.Error(c.Request().Context(), er2.Error(), core.MakeMap(user))
 		return c.String(http.StatusInternalServerError, core.InternalServerError)
 	}
-	errors = core.RemoveRequiredError(errors)
 	if len(errors) > 0 {
 		return c.JSON(http.StatusUnprocessableEntity, errors)
 	}
