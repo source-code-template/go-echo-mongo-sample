@@ -12,7 +12,6 @@ import (
 	"github.com/core-go/log/zap"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	_ "github.com/lib/pq"
 
 	"go-service/internal/app"
 )
