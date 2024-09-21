@@ -46,7 +46,7 @@ func (h *UserHandler) Load(c echo.Context) error {
 
 	user, err := h.service.Load(c.Request().Context(), id)
 	if err != nil {
-		h.Error(c.Request().Context(), fmt.Sprintf("Error to get user %s: %s", id, err.Error()))
+		h.Error(c.Request().Context(), fmt.Sprintf("Error to get user '%s': %s", id, err.Error()))
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	if user == nil {
@@ -181,7 +181,7 @@ func (h *UserHandler) Delete(c echo.Context) error {
 
 	res, err := h.service.Delete(c.Request().Context(), id)
 	if err != nil {
-		h.Error(c.Request().Context(), fmt.Sprintf("Error to delete user %s: %s", id, err.Error()))
+		h.Error(c.Request().Context(), fmt.Sprintf("Error to delete user '%s': %s", id, err.Error()))
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	if res > 0 {
