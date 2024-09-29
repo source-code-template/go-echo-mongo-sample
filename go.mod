@@ -1,14 +1,14 @@
 module go-service
 
-go 1.17
+go 1.18
 
 require (
 	github.com/core-go/config v1.0.6
-	github.com/core-go/core v1.0.4
+	github.com/core-go/core v1.2.9
 	github.com/core-go/health v1.2.1
 	github.com/core-go/log v1.0.9
-	github.com/core-go/mongo v1.0.0
-	github.com/core-go/search v1.1.2
+	github.com/core-go/mongo v1.1.2
+	github.com/core-go/search v1.2.0
 	github.com/labstack/echo/v4 v4.12.0
 	go.mongodb.org/mongo-driver v1.16.1
 )
