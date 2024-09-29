@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"reflect"
 
 	"github.com/core-go/core"
+	e "github.com/core-go/core/handler/echo"
 	"github.com/core-go/search"
 	"github.com/labstack/echo/v4"
 
@@ -15,19 +15,17 @@ import (
 )
 
 type UserHandler struct {
-	service     service.UserService
-	Validate    func(context.Context, interface{}) ([]core.ErrorMessage, error)
-	Error       func(context.Context, string, ...map[string]interface{})
-	Map         map[string]int
-	ParamIndex  map[string]int
-	FilterIndex int
+	service  service.UserService
+	Validate core.Validate
+	*core.Attributes
+	*search.Parameters
 }
 
-func NewUserHandler(service service.UserService, logError func(context.Context, string, ...map[string]interface{}), validate func(context.Context, interface{}) ([]core.ErrorMessage, error)) *UserHandler {
+func NewUserHandler(service service.UserService, logError core.Log, validate core.Validate, action *core.ActionConfig) *UserHandler {
 	userType := reflect.TypeOf(model.User{})
-	_, jsonMap, _ := core.BuildMapField(userType)
-	paramIndex, filterIndex := search.BuildAttributes(reflect.TypeOf(model.UserFilter{}))
-	return &UserHandler{service: service, Validate: validate, Map: jsonMap, Error: logError, ParamIndex: paramIndex, FilterIndex: filterIndex}
+	parameters := search.CreateParameters(reflect.TypeOf(model.UserFilter{}), userType)
+	attributes := core.CreateAttributes(userType, logError, action)
+	return &UserHandler{service: service, Validate: validate, Attributes: attributes, Parameters: parameters}
 }
 
 func (h *UserHandler) All(c echo.Context) error {
@@ -39,84 +37,52 @@ func (h *UserHandler) All(c echo.Context) error {
 }
 
 func (h *UserHandler) Load(c echo.Context) error {
-	id := c.Param("id")
-	if len(id) == 0 {
-		return c.String(http.StatusBadRequest, "Id cannot be empty")
+	id, err := e.GetRequiredString(c)
+	if err != nil {
+		return err
 	}
-
 	user, err := h.service.Load(c.Request().Context(), id)
 	if err != nil {
 		h.Error(c.Request().Context(), fmt.Sprintf("Error to get user '%s': %s", id, err.Error()))
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(http.StatusInternalServerError, core.InternalServerError)
 	}
-	if user == nil {
-		return c.JSON(http.StatusNotFound, user)
-	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(core.IsFound(user), user)
 }
 
 func (h *UserHandler) Create(c echo.Context) error {
 	var user model.User
-	er1 := c.Bind(&user)
-
-	defer c.Request().Body.Close()
+	er1 := e.Decode(c, &user)
 	if er1 != nil {
-		return c.String(http.StatusInternalServerError, er1.Error())
+		return er1
 	}
 
 	errors, er2 := h.Validate(c.Request().Context(), &user)
-	if er2 != nil {
-		h.Error(c.Request().Context(), er2.Error(), core.MakeMap(user))
-		return c.String(http.StatusInternalServerError, core.InternalServerError)
-	}
-	if len(errors) > 0 {
-		return c.JSON(http.StatusUnprocessableEntity, errors)
+	if e.HasError(c, errors, er2, h.Error, user, h.Log, h.Resource, h.Action.Create) {
+		return er2
 	}
 
 	res, er3 := h.service.Create(c.Request().Context(), &user)
-	if er3 != nil {
-		return c.String(http.StatusInternalServerError, er3.Error())
-	}
-	if res > 0 {
-		return c.JSON(http.StatusCreated, user)
-	} else {
-		return c.JSON(http.StatusConflict, res)
-	}
+	return e.AfterCreated(c, &user, res, er3, h.Error)
 }
 
 func (h *UserHandler) Update(c echo.Context) error {
 	var user model.User
-	er1 := c.Bind(&user)
-	defer c.Request().Body.Close()
-
+	er1 := e.DecodeAndCheckId(c, &user, h.Keys, h.Indexes)
 	if er1 != nil {
-		return c.String(http.StatusInternalServerError, er1.Error())
-	}
-
-	id := c.Param("id")
-	if len(id) == 0 {
-		return c.String(http.StatusBadRequest, "Id cannot be empty")
-	}
-
-	if len(user.Id) == 0 {
-		user.Id = id
-	} else if id != user.Id {
-		return c.String(http.StatusBadRequest, "Id not match")
+		return er1
 	}
 
 	errors, er2 := h.Validate(c.Request().Context(), &user)
-	if er2 != nil {
-		h.Error(c.Request().Context(), er2.Error(), core.MakeMap(user))
-		return c.String(http.StatusInternalServerError, core.InternalServerError)
-	}
-	if len(errors) > 0 {
-		return c.JSON(http.StatusUnprocessableEntity, errors)
+	if e.HasError(c, errors, er2, h.Error, user, h.Log, h.Resource, h.Action.Update) {
+		return er2
 	}
 
 	res, er3 := h.service.Update(c.Request().Context(), &user)
 	if er3 != nil {
-		return c.String(http.StatusInternalServerError, er3.Error())
+		h.Error(c.Request().Context(), er2.Error(), core.MakeMap(user))
+		return c.String(http.StatusInternalServerError, core.InternalServerError)
 	}
+
 	if res > 0 {
 		return c.JSON(http.StatusOK, user)
 	} else if res == 0 {
@@ -127,56 +93,25 @@ func (h *UserHandler) Update(c echo.Context) error {
 }
 
 func (h *UserHandler) Patch(c echo.Context) error {
-	id := c.Param("id")
-	if len(id) == 0 {
-		return c.String(http.StatusBadRequest, "Id cannot be empty")
-	}
-
-	r := c.Request()
 	var user model.User
-	userType := reflect.TypeOf(user)
-	_, jsonMap, _ := core.BuildMapField(userType)
-	body, er0 := core.BuildMapAndStruct(r, &user)
-	if er0 != nil {
-		return c.String(http.StatusInternalServerError, er0.Error())
-	}
-	if len(user.Id) == 0 {
-		user.Id = id
-	} else if id != user.Id {
-		return c.String(http.StatusBadRequest, "Id not match")
-	}
-	json, er1 := core.BodyToJsonMap(r, user, body, []string{"id"}, jsonMap)
+	jsonUser, er1 := e.BuildMapAndCheckId(c, &user, h.Keys, h.Indexes)
 	if er1 != nil {
-		return c.String(http.StatusInternalServerError, er1.Error())
+		return er1
 	}
 
 	errors, er2 := h.Validate(c.Request().Context(), &user)
-	if er2 != nil {
-		h.Error(c.Request().Context(), er2.Error(), core.MakeMap(user))
-		return c.String(http.StatusInternalServerError, core.InternalServerError)
-	}
-	errors = core.RemoveRequiredError(errors)
-	if len(errors) > 0 {
-		return c.JSON(http.StatusUnprocessableEntity, errors)
+	if e.HasError(c, errors, er2, h.Error, user, h.Log, h.Resource, h.Action.Patch) {
+		return er2
 	}
 
-	res, er3 := h.service.Patch(r.Context(), json)
-	if er3 != nil {
-		return c.String(http.StatusInternalServerError, er3.Error())
-	}
-	if res > 0 {
-		return c.JSON(http.StatusOK, json)
-	} else if res == 0 {
-		return c.JSON(http.StatusNotFound, res)
-	} else {
-		return c.JSON(http.StatusConflict, res)
-	}
+	res, er3 := h.service.Patch(c.Request().Context(), jsonUser)
+	return e.AfterSaved(c, jsonUser, res, er3, h.Error)
 }
 
 func (h *UserHandler) Delete(c echo.Context) error {
-	id := c.Param("id")
-	if len(id) == 0 {
-		return c.String(http.StatusBadRequest, "Id cannot be empty")
+	id, err := e.GetRequiredString(c)
+	if err != nil {
+		return err
 	}
 
 	res, err := h.service.Delete(c.Request().Context(), id)
