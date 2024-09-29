@@ -16,6 +16,8 @@ func Route(ctx context.Context, e *echo.Echo, cfg Config) error {
 
 	userPath := "/users"
 	e.GET(userPath, app.User.All)
+	e.GET(userPath+"/search", app.User.Search)
+	e.POST(userPath+"/search", app.User.Search)
 	e.GET(userPath+"/:id", app.User.Load)
 	e.POST(userPath, app.User.Create)
 	e.PUT(userPath+"/:id", app.User.Update)

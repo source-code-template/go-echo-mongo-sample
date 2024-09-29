@@ -7,7 +7,7 @@ import (
 	"reflect"
 
 	"github.com/core-go/core"
-	s "github.com/core-go/search"
+	"github.com/core-go/search"
 	"github.com/labstack/echo/v4"
 
 	"go-service/internal/user/model"
@@ -26,7 +26,7 @@ type UserHandler struct {
 func NewUserHandler(service service.UserService, logError func(context.Context, string, ...map[string]interface{}), validate func(context.Context, interface{}) ([]core.ErrorMessage, error)) *UserHandler {
 	userType := reflect.TypeOf(model.User{})
 	_, jsonMap, _ := core.BuildMapField(userType)
-	paramIndex, filterIndex := s.BuildAttributes(reflect.TypeOf(model.UserFilter{}))
+	paramIndex, filterIndex := search.BuildAttributes(reflect.TypeOf(model.UserFilter{}))
 	return &UserHandler{service: service, Validate: validate, Map: jsonMap, Error: logError, ParamIndex: paramIndex, FilterIndex: filterIndex}
 }
 
@@ -192,17 +192,17 @@ func (h *UserHandler) Delete(c echo.Context) error {
 }
 
 func (h *UserHandler) Search(c echo.Context) error {
-	filter := model.UserFilter{Filter: &s.Filter{}}
-	err := s.Decode(c.Request(), &filter, h.ParamIndex, h.FilterIndex)
+	filter := model.UserFilter{Filter: &search.Filter{}}
+	err := search.Decode(c.Request(), &filter, h.ParamIndex, h.FilterIndex)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	offset := s.GetOffset(filter.Limit, filter.Page)
+	offset := search.GetOffset(filter.Limit, filter.Page)
 	users, total, err := h.service.Search(c.Request().Context(), &filter, filter.Limit, offset)
 	if err != nil {
 		h.Error(c.Request().Context(), fmt.Sprintf("Error to search user %v: %s", filter, err.Error()))
 		return c.String(http.StatusInternalServerError, core.InternalServerError)
 	}
-	return c.JSON(http.StatusOK, &s.Result{List: &users, Total: total})
+	return c.JSON(http.StatusOK, &search.Result{List: &users, Total: total})
 }

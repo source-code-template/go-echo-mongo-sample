@@ -21,6 +21,7 @@ type UserTransport interface {
 	Update(echo.Context) error
 	Patch(echo.Context) error
 	Delete(echo.Context) error
+	Search(echo.Context) error
 }
 
 func NewUserHandler(db *mongo.Database, logError func(context.Context, string, ...map[string]interface{})) (UserTransport, error) {
